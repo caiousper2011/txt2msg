@@ -95,13 +95,10 @@ export const conversor = () => {
     extractWrittersName,
   ];
 
-  const run = (fileContent: string): void => {
-    const contentConverted = functionsToConvert.reduce(
-      (convertedPreviousValue, conversorFunction) => {
-        const convertedContent = conversorFunction(convertedPreviousValue);
-        console.log(convertedContent);
-        return convertedContent;
-      },
+  const run = (fileContent: string): IConversation => {
+    const contentConverted: IConversation = functionsToConvert.reduce(
+      (convertedPreviousValue, conversorFunction) =>
+        conversorFunction(convertedPreviousValue),
       fileContent,
     );
 
