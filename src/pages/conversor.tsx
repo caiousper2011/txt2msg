@@ -7,14 +7,26 @@ import {
   HStack,
   Icon,
   Input,
+  List,
+  ListIcon,
+  ListItem,
   SimpleGrid,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
   useDisclosure,
-  VStack,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/dist/client/router';
-import { useEffect } from 'react';
-import { RiMenuLine, RiSearchLine } from 'react-icons/ri';
+import { ChangeEvent, FormEvent, useEffect } from 'react';
+import {
+  RiCloseLine,
+  RiMenuLine,
+  RiSearchLine,
+  RiUserLine,
+} from 'react-icons/ri';
 import { useConversation } from '../contexts/ConversationContext';
 import { theme } from '../styles/theme';
 import {
@@ -34,6 +46,10 @@ const Conversor: React.FC = () => {
   const [mainContact, setMainContact] = useState('');
   const { conversation } = useConversation();
   const { data, writtersName } = conversation;
+  const [search, setSearch] = useState('');
+  const [toShowConversation, setToShowConversation] = useState(data);
+  const { isOpen: showMenu, onToggle } = useDisclosure();
+  const [highLightContact, setHighLightContact] = useState('');
 
   useEffect(() => {
     if (!conversation.data) {
@@ -43,14 +59,27 @@ const Conversor: React.FC = () => {
     onOpen();
   }, [conversation, mainContact, router, onOpen]);
 
+  const handleFilterMessagesBySearch = (
+    inputEvent: ChangeEvent<HTMLInputElement>,
+  ) => {
+    inputEvent.preventDefault();
+    const searchedValue = inputEvent.target.value;
+    setSearch(searchedValue);
+    setToShowConversation([
+      ...data.filter((data) =>
+        data.data.toLowerCase().includes(searchedValue.toLowerCase()),
+      ),
+    ]);
+  };
+
   return (
     <>
       <Flex
         w={calc.subtract('100vw', `${theme.space}`)}
         h={calc.subtract('100vh', '110px')}
-        mt={6}
-        mx={6}
         bg="gray.800"
+        mx={6}
+        mt={6}
         borderRadius={4}
         flexDirection="column"
       >
@@ -60,79 +89,156 @@ const Conversor: React.FC = () => {
           p={4}
           borderTopRadius={4}
           boxShadow="md"
+          position="relative"
         >
-          <HStack>
-            <Button variant="unstyled">
-              <Icon as={RiMenuLine} fontSize={24} />
-            </Button>
-            <Text fontSize={20} fontWeight="light">
-              Conversas renderizadas
-            </Text>
-          </HStack>
-          <Badge>11 95287-5150</Badge>
+          <Button variant="unstyled" onClick={onToggle}>
+            <Icon as={showMenu ? RiCloseLine : RiMenuLine} fontSize={24} />
+          </Button>
+          <Text
+            as="button"
+            fontSize={16}
+            fontWeight="medium"
+            onClick={onOpen}
+            title="Trocar contato principal"
+          >
+            {mainContact}
+          </Text>
         </HStack>
-        <Flex
-          flex="1"
-          flexDirection="column"
-          alignItems="flex-start"
-          px={4}
-          py={2}
-          overflowY="auto"
-        >
-          {Boolean(data) &&
-            Boolean(mainContact) &&
-            data.map((message, index) =>
-              mainContact === message.writterName ? (
-                <Box
-                  maxW="80%"
-                  minW="60%"
-                  bg="pink.500"
-                  p={4}
-                  my={2}
-                  borderRadius={4}
-                  alignSelf="flex-end"
-                >
-                  <Text fontSize={18} fontWeight="medium" color="gray.900">
-                    {message.data}
-                  </Text>
-                  <HStack
-                    justify="space-between"
-                    alignItems="flex-end"
-                    color="gray.1
-                    00"
+
+        <Flex position="relative" flex="1" direction="row" overflow="hidden">
+          {showMenu && (
+            <Flex
+              w="320px"
+              bg="gray.600"
+              flexDirection="column"
+              h="100%"
+              boxShadow="2xl"
+            >
+              <Tabs colorScheme="pink">
+                <TabList>
+                  <Tab
+                    fontSize={18}
+                    color="whiteAlpha.700"
+                    _selected={{
+                      color: 'white',
+                    }}
                   >
-                    <Text fontSize="xs" mt={4}>
-                      {message.messageDate}
+                    Contatos
+                  </Tab>
+                  <Tab
+                    fontSize={18}
+                    color="whiteAlpha.700"
+                    _selected={{
+                      color: 'white',
+                    }}
+                  >
+                    Datas
+                  </Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    <Text fontSize="md" color="gray.300">
+                      Contatos participantes da conversas
                     </Text>
-                    <Text fontSize="xs" mt={4}>
-                      {message.writterName}
-                    </Text>
-                  </HStack>
-                </Box>
-              ) : (
-                <Box
+                    <List spacing={3} mt={4}>
+                      {writtersName.map((writterName, index) => (
+                        <ListItem
+                          as="button"
+                          key={index}
+                          color={
+                            mainContact === writterName
+                              ? 'gray.100'
+                              : 'gray.300'
+                          }
+                          onClick={() =>
+                            setHighLightContact((oldWritter) => {
+                              return oldWritter === writterName
+                                ? ''
+                                : writterName;
+                            })
+                          }
+                        >
+                          <ListIcon as={RiUserLine} />
+                          {writterName}
+                        </ListItem>
+                      ))}
+                    </List>
+                  </TabPanel>
+                  <TabPanel>2</TabPanel>
+                </TabPanels>
+              </Tabs>
+            </Flex>
+          )}
+          <Flex
+            flex="1"
+            flexDirection="column"
+            alignItems="flex-start"
+            px={4}
+            py={2}
+            overflowY="scroll"
+          >
+            {Boolean(toShowConversation) &&
+              Boolean(mainContact) &&
+              toShowConversation.map((message, index) => (
+                <Flex
                   key={index}
-                  maxW="80%"
-                  minW="60%"
-                  bg="gray.900"
-                  p={4}
-                  my={2}
-                  borderRadius={4}
+                  w="100%"
+                  flexDirection="column"
+                  bg={
+                    highLightContact === message.writterName ? 'gray.700' : ''
+                  }
+                  py={2}
                 >
-                  <Text fontSize={18} color="gray.300">
-                    {message.data}
-                  </Text>
-                  <HStack justify="space-between" alignItems="flex-end">
-                    <Text fontSize="xs" mt={4}>
-                      {message.messageDate}
-                    </Text>
-                    <Text fontSize="xs" mt={4}>
-                      {message.writterName}
-                    </Text>
-                  </HStack>
-                </Box>
-              ),
-            )}
+                  {mainContact === message.writterName ? (
+                    <Box
+                      maxW="80%"
+                      minW="70%"
+                      bg="pink.500"
+                      p={4}
+                      borderRadius={4}
+                      alignSelf="flex-end"
+                    >
+                      <Text fontSize={18} fontWeight="medium" color="gray.900">
+                        {message.data}
+                      </Text>
+                      <HStack
+                        justify="space-between"
+                        alignItems="flex-end"
+                        color="gray.100"
+                      >
+                        <Text fontSize="xs" mt={4}>
+                          {message.messageDate}
+                        </Text>
+                        <Text fontSize="xs" mt={4}>
+                          {message.writterName}
+                        </Text>
+                      </HStack>
+                    </Box>
+                  ) : (
+                    <Box
+                      maxW="80%"
+                      minW="45%"
+                      w="auto"
+                      bg="gray.900"
+                      p={4}
+                      borderRadius={4}
+                    >
+                      <Text fontSize={18} color="gray.300">
+                        {message.data}
+                      </Text>
+                      <HStack justify="space-between" alignItems="flex-end">
+                        <Text fontSize="xs" mt={4}>
+                          {message.messageDate}
+                        </Text>
+                        <Text fontSize="xs" mt={4}>
+                          {message.writterName}
+                        </Text>
+                      </HStack>
+                    </Box>
+                  )}
+                </Flex>
+              ))}
+          </Flex>
         </Flex>
         <Box bg="gray.800" px={4} py={4}>
           <Flex
@@ -153,6 +259,8 @@ const Conversor: React.FC = () => {
               _placeholder={{ color: 'gray.400' }}
               px="4"
               mr="4"
+              onChange={handleFilterMessagesBySearch}
+              value={search}
             />
             <Icon as={RiSearchLine} fontSize="20" />
           </Flex>
