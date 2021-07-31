@@ -15,9 +15,7 @@ interface IConversation {
   messagesDate?: string[];
 }
 
-const removalMessages = [
-  'Nem mesmo o WhatsApp pode ler ou ouvi-las. Toque para saber mais.',
-];
+export const APPLICATION_WRITTER_NAME = 'whatsapp';
 
 export const conversor = () => {
   const breakLinesDriveByMessageDate = (fileContent: string) => {
@@ -27,14 +25,7 @@ export const conversor = () => {
 
   const removeAnyNonRealContentOrDirty = (fileContent: string[]) => {
     const removeNonContentReg = new RegExp(/\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}/);
-    return fileContent.filter((content) => {
-      return (
-        removeNonContentReg.test(content) &&
-        removalMessages.some(
-          (removalMessage) => !content.includes(removalMessage),
-        )
-      );
-    });
+    return fileContent.filter((content) => removeNonContentReg.test(content));
   };
 
   const separateContentAndDate = (
@@ -56,9 +47,11 @@ export const conversor = () => {
     const breakContentBySeparator = new RegExp(/([:*?]\s)/);
 
     return fileContent.map((content) => {
-      const [writterName, _, messageContent] = content.data.split(
-        breakContentBySeparator,
-      );
+      const [writterName, _, messageContent] = breakContentBySeparator.test(
+        content.data,
+      )
+        ? content.data.split(breakContentBySeparator)
+        : [APPLICATION_WRITTER_NAME, , content.data];
       return { ...content, writterName, data: messageContent };
     });
   };
@@ -77,7 +70,11 @@ export const conversor = () => {
 
   const extractWrittersName = (fileContent: IConversation): IConversation => {
     const writtersName = [
-      ...new Set(fileContent.data.map((content) => content.writterName)),
+      ...new Set(
+        fileContent.data
+          .map((content) => content.writterName)
+          .filter((writterName) => writterName !== APPLICATION_WRITTER_NAME),
+      ),
     ];
 
     return {

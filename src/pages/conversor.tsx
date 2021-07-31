@@ -23,7 +23,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/dist/client/router';
-import { ChangeEvent, FormEvent, useEffect } from 'react';
+import { ChangeEvent, FormEvent, Ref, useEffect } from 'react';
 import {
   RiCalendarLine,
   RiCloseLine,
@@ -43,9 +43,12 @@ import {
   ModalFooter,
   ModalBody,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, MutableRefObject } from 'react';
 import { Radio, RadioGroup } from '@chakra-ui/react';
 import { useCallback } from 'react';
+import { APPLICATION_WRITTER_NAME } from '../utils/index';
+import { createRef } from 'react';
+import { useRef } from 'react';
 
 const Conversor: React.FC = () => {
   const router = useRouter();
@@ -58,22 +61,46 @@ const Conversor: React.FC = () => {
   const { isOpen: showMenu, onToggle } = useDisclosure();
   const [highLightContact, setHighLightContact] = useState('');
   const [datesFilter, setDatesFilter] = useState({});
-
+  const [findByRefs, setFindByRefs] = useState([]);
+  const [messageBoxRef, setMessageBoxRef] = useState(
+    [] as MutableRefObject<HTMLElement>[],
+  );
+  const ref = useRef();
   useEffect(() => {
+    setMessageBoxRef((OldBoxMessageRef) =>
+      Array(toShowConversation.length)
+        .fill(undefined)
+        .map((_, index) => {
+          return createRef();
+        }),
+    );
     onOpen();
-  }, [onOpen]);
+  }, [onOpen, toShowConversation]);
 
   const handleFilterMessagesBySearch = (
     inputEvent: ChangeEvent<HTMLInputElement>,
   ) => {
     inputEvent.preventDefault();
+
     const searchedValue = inputEvent.target.value;
     setSearch(searchedValue);
-    setToShowConversation([
-      ...data.filter((data) =>
-        data.data.toLowerCase().includes(searchedValue.toLowerCase()),
-      ),
-    ]);
+    const searchedValuesIndex = [
+      ...data
+        .map(
+          (data, index) =>
+            data.data.toLowerCase().includes(searchedValue.toLowerCase()) &&
+            index,
+        )
+        .filter(Boolean),
+    ];
+
+    console.log(searchedValuesIndex);
+    const searchedValuesPosition = messageBoxRef
+      .filter((_, index) => searchedValuesIndex.includes(index))
+      .filter(Boolean)
+      .map((boxRef) => boxRef.current?.offsetTop);
+
+    console.log(searchedValuesPosition);
   };
 
   const handleFilterByDate = useCallback(
@@ -87,7 +114,6 @@ const Conversor: React.FC = () => {
         const selectedDates = Object.entries(newFilterByDate)
           .filter(([_, value]) => value)
           .map(([key]) => key);
-        console.log(selectedDates);
 
         return selectedDates.length
           ? data.filter(({ messageDate }) =>
@@ -95,7 +121,6 @@ const Conversor: React.FC = () => {
             )
           : data;
       });
-      console.log(newFilterByDate, newFilterByDate[messageDate]);
     },
     [datesFilter, data],
   );
@@ -247,63 +272,110 @@ const Conversor: React.FC = () => {
             {Boolean(toShowConversation) &&
               Boolean(mainContact) &&
               toShowConversation.map((message, index) => (
-                <Flex
-                  key={index}
-                  w="100%"
-                  flexDirection="column"
-                  bg={
-                    highLightContact === message.writterName ? 'gray.700' : ''
-                  }
-                  py={2}
-                >
-                  {mainContact === message.writterName ? (
+                <>
+                  {message.writterName === APPLICATION_WRITTER_NAME ? (
                     <Box
-                      maxW="80%"
-                      minW="70%"
-                      bg="pink.500"
+                      key={index}
+                      w="100%"
+                      bg="gray.700"
                       p={4}
                       borderRadius={4}
-                      alignSelf="flex-end"
+                      my={4}
+                      borderLeftColor="pink.500"
+                      borderLeftWidth="4px"
+                      color="gray.400"
                     >
-                      <Text fontSize={18} fontWeight="medium" color="gray.900">
-                        {message.data}
-                      </Text>
+                      <Text>{message.data}</Text>
                       <HStack
-                        justify="space-between"
+                        justifyContent="space-between"
                         alignItems="flex-end"
-                        color="gray.100"
                       >
-                        <Text fontSize="xs" mt={4}>
-                          {message.messageDate}
+                        <Text
+                          fontSize={12}
+                          mt={2}
+                          textAlign="end"
+                          color="gray.500"
+                        >
+                          Mensagem padrão do aplicativo
                         </Text>
-                        <Text fontSize="xs" mt={4}>
-                          {message.writterName}
+                        <Text
+                          fontSize={12}
+                          mt={2}
+                          textAlign="end"
+                          color="pink.600"
+                        >
+                          {message.messageDate}
                         </Text>
                       </HStack>
                     </Box>
                   ) : (
-                    <Box
-                      maxW="80%"
-                      minW="45%"
-                      w="auto"
-                      bg="gray.900"
-                      p={4}
-                      borderRadius={4}
+                    <Flex
+                      key={index}
+                      w="100%"
+                      flexDirection="column"
+                      bg={
+                        highLightContact === message.writterName
+                          ? 'gray.700'
+                          : ''
+                      }
+                      py={2}
                     >
-                      <Text fontSize={18} color="gray.300">
-                        {message.data}
-                      </Text>
-                      <HStack justify="space-between" alignItems="flex-end">
-                        <Text fontSize="xs" mt={4}>
-                          {message.messageDate}
-                        </Text>
-                        <Text fontSize="xs" mt={4}>
-                          {message.writterName}
-                        </Text>
-                      </HStack>
-                    </Box>
+                      {mainContact === message.writterName ? (
+                        <Box
+                          maxW="80%"
+                          minW="70%"
+                          bg="pink.500"
+                          p={4}
+                          borderRadius={4}
+                          alignSelf="flex-end"
+                          ref={messageBoxRef[index]}
+                        >
+                          <Text
+                            fontSize={18}
+                            fontWeight="medium"
+                            color="gray.900"
+                          >
+                            {message.data}
+                          </Text>
+                          <HStack
+                            justify="space-between"
+                            alignItems="flex-end"
+                            color="gray.100"
+                          >
+                            <Text fontSize="xs" mt={4}>
+                              {message.messageDate}
+                            </Text>
+                            <Text fontSize="xs" mt={4}>
+                              {message.writterName}
+                            </Text>
+                          </HStack>
+                        </Box>
+                      ) : (
+                        <Box
+                          maxW="80%"
+                          minW="45%"
+                          w="auto"
+                          bg="gray.900"
+                          p={4}
+                          borderRadius={4}
+                          ref={messageBoxRef[index]}
+                        >
+                          <Text fontSize={18} color="gray.300">
+                            {message.data}
+                          </Text>
+                          <HStack justify="space-between" alignItems="flex-end">
+                            <Text fontSize="xs" mt={4}>
+                              {message.messageDate}
+                            </Text>
+                            <Text fontSize="xs" mt={4}>
+                              {message.writterName}
+                            </Text>
+                          </HStack>
+                        </Box>
+                      )}
+                    </Flex>
                   )}
-                </Flex>
+                </>
               ))}
           </Flex>
         </Flex>
