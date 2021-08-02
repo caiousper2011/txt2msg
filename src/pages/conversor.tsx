@@ -30,7 +30,7 @@ import {
   ModalBody,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/dist/client/router';
-import { useRef } from 'react';
+import { ElementRef, LegacyRef, useRef } from 'react';
 import {
   ChangeEvent,
   useEffect,
@@ -75,10 +75,8 @@ const Conversor: React.FC = () => {
   const [highLightContact, setHighLightContact] = useState('');
   const [datesFilter, setDatesFilter] = useState({});
   const [findByRefs, setFindByRefs] = useState([]);
-  const [messageBoxRef, setMessageBoxRef] = useState(
-    [] as MutableRefObject<HTMLElement>[],
-  );
-  const messagesContainerRef = useRef<HTMLElement>();
+  const [messageBoxRef, setMessageBoxRef] = useState([] as any[]);
+  const messagesContainerRef = useRef<HTMLDivElement>();
   const [searchControls, setSearchControls] = useState<SearchControls>({});
 
   useEffect(() => {
