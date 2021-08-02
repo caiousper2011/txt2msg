@@ -1,14 +1,24 @@
 import { Button, Flex, HStack, Icon, Text, Input } from '@chakra-ui/react';
+import { useRouter } from 'next/dist/client/router';
 import { RiUploadLine } from 'react-icons/ri';
-import { conversor } from '../../utils/index';
+import { useConversation } from '../../contexts/ConversationContext';
+import Link from 'next/link';
 
 export interface HeaderProps {}
 
 export const Header: React.FC<HeaderProps> = () => {
+  const { convertConversation } = useConversation();
+  const router = useRouter();
+
   const handleSelectedConversationFile = async (newfile: File) => {
     const conversation = await newfile.text();
-    const conversorData = conversor();
-    conversorData.run(conversation);
+
+    if (convertConversation(conversation)) {
+      router.push('/conversor');
+      return;
+    }
+
+    alert('Erro na conversão');
     localStorage[`zapconversor@conversation:${1}`] = conversation;
   };
 
@@ -23,9 +33,11 @@ export const Header: React.FC<HeaderProps> = () => {
       justifyContent="space-between"
     >
       <HStack display="flex" alignItems="flex-end">
-        <Text fontSize="2xl" fontWeight="light">
-          ZAP conversor
-        </Text>
+        <Link href="/" passHref>
+          <Text fontSize="2xl" fontWeight="light">
+            ZAP conversor
+          </Text>
+        </Link>
         <Text
           as="span"
           fontSize="xl"
