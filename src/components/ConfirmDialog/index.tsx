@@ -33,11 +33,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   return (
     <AlertDialog
       motionPreset="slideInBottom"
-      onClose={onClose}
       isOpen={open}
+      onClose={() => onClose}
       leastDestructiveRef={cancelRef}
       isCentered
-      onEsc={() => handleClose(false)}
+      onEsc={() => handleClose()}
     >
       <AlertDialogOverlay />
 
@@ -50,7 +50,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <Button
               flex="1"
               ref={cancelRef}
-              onClick={() => handleClose(false)}
+              onClick={() => handleClose()}
               colorScheme="blackAlpha"
               size="sm"
             >
@@ -60,7 +60,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               size="sm"
               flex="1"
               colorScheme="pink"
-              onClick={() => handleClose(true)}
+              onClick={() => handleClose()}
               autoFocus={true}
             >
               {confirmButtonText}
