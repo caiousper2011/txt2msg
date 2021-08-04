@@ -19,12 +19,16 @@ export const APPLICATION_WRITTER_NAME = 'whatsapp';
 
 export const conversor = () => {
   const breakLinesDriveByMessageDate = (fileContent: string) => {
-    const breakByDate = new RegExp(/(\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}.*)/);
+    const breakByDate = new RegExp(
+      /(\d{2}\/\d{2}\/(\d{4}|\d{2})\s\d{2}:\d{2}.*)/,
+    );
     return fileContent.split(breakByDate);
   };
 
   const removeAnyNonRealContentOrDirty = (fileContent: string[]) => {
-    const removeNonContentReg = new RegExp(/\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}/);
+    const removeNonContentReg = new RegExp(
+      /\d{2}\/\d{2}\/(\d{4}|\d{2})\s\d{2}:\d{2}/,
+    );
     return fileContent.filter((content) => removeNonContentReg.test(content));
   };
 

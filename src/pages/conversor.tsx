@@ -30,12 +30,11 @@ import {
   ModalBody,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/dist/client/router';
-import { ElementRef, LegacyRef, useRef } from 'react';
+import { useRef } from 'react';
 import {
   ChangeEvent,
   useEffect,
   useState,
-  MutableRefObject,
   createRef,
   useCallback,
 } from 'react';
@@ -53,6 +52,10 @@ import {
 import { useConversation } from '../contexts/ConversationContext';
 import { theme } from '../styles/theme';
 import { APPLICATION_WRITTER_NAME } from '../utils/index';
+import { FilterHeader } from '../components/FilterHeader';
+import { FilterTabHeader } from '../components/FilterTabHeader';
+import FilterByContacts from '../components/FilterByContacts';
+import { FilterByDates } from '../components/FilterByDates';
 
 interface SearchControls {
   searchedValuesIndex?: number[];
@@ -65,6 +68,7 @@ interface SearchControls {
 
 const Conversor: React.FC = () => {
   const router = useRouter();
+  const [useFake, setUseFake] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [mainContact, setMainContact] = useState('');
   const { conversation } = useConversation();
@@ -73,7 +77,6 @@ const Conversor: React.FC = () => {
   const [toShowConversation, setToShowConversation] = useState(data);
   const { isOpen: showMenu, onToggle } = useDisclosure();
   const [highLightContact, setHighLightContact] = useState('');
-  const [datesFilter, setDatesFilter] = useState({});
   const [findByRefs, setFindByRefs] = useState([]);
   const [messageBoxRef, setMessageBoxRef] = useState([] as any[]);
   const messagesContainerRef = useRef<HTMLDivElement>();
@@ -184,28 +187,6 @@ const Conversor: React.FC = () => {
     });
   };
 
-  const handleFilterByDate = useCallback(
-    (messageDate: string) => {
-      const newFilterByDate = {
-        ...datesFilter,
-        [messageDate]: !Boolean(datesFilter[messageDate]),
-      };
-      setDatesFilter(newFilterByDate);
-      setToShowConversation(() => {
-        const selectedDates = Object.entries(newFilterByDate)
-          .filter(([_, value]) => value)
-          .map(([key]) => key);
-
-        return selectedDates.length
-          ? data.filter(({ messageDate }) =>
-              selectedDates.includes(messageDate.split(' ')[0]),
-            )
-          : data;
-      });
-    },
-    [datesFilter, data],
-  );
-
   return (
     <>
       <Flex
@@ -249,94 +230,29 @@ const Conversor: React.FC = () => {
               boxShadow="2xl"
             >
               <Tabs colorScheme="pink">
-                <TabList>
-                  <Tab
-                    fontSize={18}
-                    color="whiteAlpha.700"
-                    _selected={{
-                      color: 'white',
-                    }}
-                  >
-                    Contatos
-                  </Tab>
-                  <Tab
-                    fontSize={18}
-                    color="whiteAlpha.700"
-                    _selected={{
-                      color: 'white',
-                    }}
-                  >
-                    Datas
-                  </Tab>
-                </TabList>
+                <FilterTabHeader tabs={['Contatos', 'Datas']} />
                 <TabPanels>
                   <TabPanel overflow="hidden">
-                    <Text fontSize="md" color="gray.300">
-                      Contatos participantes da conversas.
-                    </Text>
-                    <Text fontSize="xs">
-                      Para destacar as mensagens desse contato basta clicar que
-                      as mensagens enviadas por ele serão destacadas em tela
-                    </Text>
-                    <List spacing={3} mt={4} overflow="auto" h="100%">
-                      {writtersName.map((writterName, index) => (
-                        <ListItem
-                          as="button"
-                          key={index}
-                          color={
-                            mainContact === writterName
-                              ? 'gray.100'
-                              : 'gray.300'
-                          }
-                          onClick={() =>
-                            setHighLightContact((oldWritter) => {
-                              return oldWritter === writterName
-                                ? ''
-                                : writterName;
-                            })
-                          }
-                        >
-                          {highLightContact === writterName ? (
-                            <ListIcon as={RiStarSFill} />
-                          ) : (
-                            <ListIcon as={RiUserLine} />
-                          )}
-                          {writterName}
-                        </ListItem>
-                      ))}
-                    </List>
+                    <FilterHeader
+                      title="Contatos participantes da conversas."
+                      subtitle="Para destacar as mensagens desse contato basta clicar que
+                      as mensagens enviadas por ele serão destacadas em tela"
+                    />
+                    <FilterByContacts
+                      mainContact={mainContact}
+                      highLightContact={highLightContact}
+                      handleHighLightContact={setHighLightContact}
+                      writtersName={writtersName}
+                    />
                   </TabPanel>
                   <TabPanel>
-                    <Text fontSize="md" color="gray.300">
-                      Datas onde as conversas ocorreram.
-                    </Text>
-                    <Text fontSize="xs">
-                      Para destacar as mensagens de alguma data, basta clicar
+                    <FilterHeader
+                      title="Datas onde as conversas ocorreram."
+                      subtitle="Para destacar as mensagens de alguma data, basta clicar
                       que as mensagens na respectiva data selecionada serão
-                      destacadas em tela
-                    </Text>
-                    <CheckboxGroup colorScheme="pink">
-                      <List spacing={3} mt={4} overflow="auto" h="100%">
-                        {messagesDate.map((messageDate) => (
-                          <Box key={messageDate}>
-                            <ListItem as="button">
-                              <ListIcon as={RiCalendarLine} />
-                              <Checkbox
-                                value={messageDate}
-                                checked={Boolean(datesFilter[messageDate])}
-                                onChange={() => handleFilterByDate(messageDate)}
-                              >
-                                {messageDate}-
-                                {Boolean(datesFilter[messageDate])
-                                  ? 'Sim'
-                                  : 'Não'}
-                              </Checkbox>
-                            </ListItem>
-                          </Box>
-                        ))}
-                      </List>
-                      {JSON.stringify(datesFilter)}
-                    </CheckboxGroup>
+                      destacadas em tela"
+                    />
+                    <FilterByDates messagesDate={messagesDate} />
                   </TabPanel>
                 </TabPanels>
               </Tabs>
