@@ -3,18 +3,11 @@ import {
   Box,
   Button,
   calc,
-  Checkbox,
-  CheckboxGroup,
   Flex,
   HStack,
   Icon,
   Input,
-  List,
-  ListIcon,
-  ListItem,
   SimpleGrid,
-  Tab,
-  TabList,
   TabPanel,
   TabPanels,
   Tabs,
@@ -38,16 +31,12 @@ import {
   createRef,
   useCallback,
 } from 'react';
-
 import {
   RiArrowDownLine,
   RiArrowUpLine,
-  RiCalendarLine,
   RiCloseLine,
   RiMenuLine,
   RiSearchLine,
-  RiStarSFill,
-  RiUserLine,
 } from 'react-icons/ri';
 import { useConversation } from '../contexts/ConversationContext';
 import { theme } from '../styles/theme';
@@ -56,6 +45,8 @@ import { FilterHeader } from '../components/FilterHeader';
 import { FilterTabHeader } from '../components/FilterTabHeader';
 import FilterByContacts from '../components/FilterByContacts';
 import { FilterByDates } from '../components/FilterByDates';
+import { Message } from '../components/Message';
+import { MessageApp } from '../components/MessageApp';
 
 interface SearchControls {
   searchedValuesIndex?: number[];
@@ -272,40 +263,7 @@ const Conversor: React.FC = () => {
               toShowConversation.map((message, index) => (
                 <>
                   {message.writterName === APPLICATION_WRITTER_NAME ? (
-                    <Box
-                      key={index}
-                      w="100%"
-                      bg="gray.700"
-                      p={4}
-                      borderRadius={4}
-                      my={4}
-                      borderLeftColor="pink.500"
-                      borderLeftWidth="4px"
-                      color="gray.400"
-                    >
-                      <Text>{message.data}</Text>
-                      <HStack
-                        justifyContent="space-between"
-                        alignItems="flex-end"
-                      >
-                        <Text
-                          fontSize={12}
-                          mt={2}
-                          textAlign="end"
-                          color="gray.500"
-                        >
-                          Mensagem padrão do aplicativo
-                        </Text>
-                        <Text
-                          fontSize={12}
-                          mt={2}
-                          textAlign="end"
-                          color="pink.600"
-                        >
-                          {message.messageDate}
-                        </Text>
-                      </HStack>
-                    </Box>
+                    <MessageApp key={index} message={message} />
                   ) : (
                     <Flex
                       key={index}
@@ -318,59 +276,11 @@ const Conversor: React.FC = () => {
                       }
                       py={2}
                     >
-                      {mainContact === message.writterName ? (
-                        <Box
-                          maxW="80%"
-                          minW="70%"
-                          bg="pink.500"
-                          p={4}
-                          borderRadius={4}
-                          alignSelf="flex-end"
-                          ref={messageBoxRef[index]}
-                        >
-                          <Text
-                            fontSize={18}
-                            fontWeight="medium"
-                            color="gray.900"
-                          >
-                            {message.data}
-                          </Text>
-                          <HStack
-                            justify="space-between"
-                            alignItems="flex-end"
-                            color="gray.100"
-                          >
-                            <Text fontSize="xs" mt={4}>
-                              {message.messageDate}
-                            </Text>
-                            <Text fontSize="xs" mt={4}>
-                              {message.writterName}
-                            </Text>
-                          </HStack>
-                        </Box>
-                      ) : (
-                        <Box
-                          maxW="80%"
-                          minW="45%"
-                          w="auto"
-                          bg="gray.900"
-                          p={4}
-                          borderRadius={4}
-                          ref={messageBoxRef[index]}
-                        >
-                          <Text fontSize={18} color="gray.300">
-                            {message.data}
-                          </Text>
-                          <HStack justify="space-between" alignItems="flex-end">
-                            <Text fontSize="xs" mt={4}>
-                              {message.messageDate}
-                            </Text>
-                            <Text fontSize="xs" mt={4}>
-                              {message.writterName}
-                            </Text>
-                          </HStack>
-                        </Box>
-                      )}
+                      <Message
+                        message={message}
+                        ref={messageBoxRef[index]}
+                        mainWritter={mainContact}
+                      />
                     </Flex>
                   )}
                 </>
