@@ -1,6 +1,5 @@
 import {
   Badge,
-  Box,
   Button,
   calc,
   Flex,
@@ -21,9 +20,10 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody,
+  Box,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/dist/client/router';
-import { useRef } from 'react';
+import { MutableRefObject, useRef } from 'react';
 import {
   ChangeEvent,
   useEffect,
@@ -47,31 +47,20 @@ import FilterByContacts from '../components/FilterByContacts';
 import { FilterByDates } from '../components/FilterByDates';
 import { Message } from '../components/Message';
 import { MessageApp } from '../components/MessageApp';
-
-interface SearchControls {
-  searchedValuesIndex?: number[];
-  searchedValuesPosition?: number[];
-  searchedValue?: string;
-  currentPosition?: number;
-  nextPosition?: number;
-  previousPosition?: number;
-}
+import { SearchMessages } from '../components/SearchMessages';
 
 const Conversor: React.FC = () => {
-  const router = useRouter();
-  const [useFake, setUseFake] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [mainContact, setMainContact] = useState('');
   const { conversation } = useConversation();
   const { data, writtersName, messagesDate } = conversation;
-  const [search, setSearch] = useState('');
   const [toShowConversation, setToShowConversation] = useState(data);
   const { isOpen: showMenu, onToggle } = useDisclosure();
   const [highLightContact, setHighLightContact] = useState('');
-  const [findByRefs, setFindByRefs] = useState([]);
-  const [messageBoxRef, setMessageBoxRef] = useState([] as any[]);
+  const [messageBoxRef, setMessageBoxRef] = useState(
+    [] as MutableRefObject<HTMLDivElement>[],
+  );
   const messagesContainerRef = useRef<HTMLDivElement>();
-  const [searchControls, setSearchControls] = useState<SearchControls>({});
 
   useEffect(() => {
     setMessageBoxRef(
@@ -79,104 +68,9 @@ const Conversor: React.FC = () => {
         .fill(undefined)
         .map(() => createRef()),
     );
+
     onOpen();
   }, [onOpen, toShowConversation]);
-
-  const handleFilterMessagesBySearch = (
-    inputEvent: ChangeEvent<HTMLInputElement>,
-  ) => {
-    inputEvent.preventDefault();
-    const searchedValue = inputEvent.target.value;
-
-    if (!searchedValue) {
-      setSearchControls({});
-      return;
-    }
-
-    setSearch(searchedValue);
-
-    const searchedValuesIndex = [
-      ...data
-        .map(
-          (data, index) =>
-            data.data.toLowerCase().includes(searchedValue.toLowerCase()) &&
-            index,
-        )
-        .filter(Boolean)
-        .reverse(),
-    ];
-
-    const searchedValuesPosition = messageBoxRef
-      .filter((_, index) => searchedValuesIndex.includes(index))
-      .filter(Boolean)
-      .map((boxRef) => boxRef.current?.offsetTop);
-
-    const newSearchControls = {
-      searchedValuesIndex,
-      searchedValuesPosition,
-      searchedValue,
-      currentPosition: searchedValuesPosition[0],
-    };
-
-    setSearchControls(newSearchControls);
-
-    getPositions(newSearchControls);
-  };
-
-  const scrollUntilPosition = useCallback((top) => {
-    if (top) {
-      messagesContainerRef.current.scrollTo({ top });
-    }
-  }, []);
-
-  const getPositions = (newSearchControls) => {
-    getNextPosition(newSearchControls);
-    getPreviousPosition(newSearchControls);
-  };
-
-  const getNextPosition = useCallback((newSearchControls) => {
-    const { searchedValuesPosition, currentPosition } = newSearchControls;
-    const nextPosition = searchedValuesPosition?.slice(
-      searchedValuesPosition.indexOf(currentPosition),
-      searchedValuesPosition.length,
-    );
-
-    setSearchControls((oldValue) => ({
-      ...oldValue,
-      nextPosition: nextPosition?.length,
-    }));
-  }, []);
-
-  const getPreviousPosition = useCallback((newSearchControls) => {
-    const { searchedValuesPosition, currentPosition } = newSearchControls;
-    const previousPosition = searchedValuesPosition?.slice(
-      0,
-      searchedValuesPosition.indexOf(currentPosition),
-    );
-
-    setSearchControls((oldValue) => ({
-      ...oldValue,
-      previousPosition: previousPosition?.length,
-    }));
-  }, []);
-
-  const handleChangePosition = (type: 'add' | 'substract' = 'add') => {
-    setSearchControls((oldValue) => {
-      const currentPositionIndex = oldValue.searchedValuesPosition.findIndex(
-        (position) => position === oldValue.currentPosition,
-      );
-
-      const typeChangeValue = type === 'add' ? 1 : -1;
-
-      const currentPosition =
-        oldValue.searchedValuesPosition[currentPositionIndex + typeChangeValue];
-
-      const newSearchControls = { ...oldValue, currentPosition };
-      getPositions(newSearchControls);
-      scrollUntilPosition(currentPosition);
-      return newSearchControls;
-    });
-  };
 
   return (
     <>
@@ -287,68 +181,12 @@ const Conversor: React.FC = () => {
               ))}
           </Flex>
         </Flex>
-        <Flex bg="gray.800" px={4} py={4}>
-          <Flex
-            as="label"
-            py="3"
-            pl={2}
-            pr={4}
-            alignItems="center"
-            color="gray.200"
-            position="relative"
-            bg="gray.900"
-            borderRadius="full"
-            flex="1"
-          >
-            <Input
-              color="gray.50"
-              variant="unstyled"
-              placeholder="Buscar mensagem"
-              _placeholder={{ color: 'gray.400' }}
-              px="4"
-              mr="4"
-              onChange={handleFilterMessagesBySearch}
-              value={search}
-            />
-            <Icon as={RiSearchLine} fontSize="20" />
-          </Flex>
-          <Flex
-            alignItems="center"
-            opacity={
-              searchControls.searchedValuesPosition?.length ? '1' : '0.2'
-            }
-          >
-            <Button
-              variant="unstyled"
-              display="flex"
-              onClick={() => handleChangePosition('add')}
-              disabled={
-                !searchControls.nextPosition ||
-                searchControls?.nextPosition === 1
-              }
-            >
-              <Icon as={RiArrowDownLine} />
-              <Text fontSize="xs">{searchControls?.previousPosition || 0}</Text>
-            </Button>
-            /
-            <Button
-              variant="unstyled"
-              display="flex"
-              onClick={() => handleChangePosition('substract')}
-              disabled={
-                !searchControls.previousPosition ||
-                searchControls?.previousPosition ===
-                  searchControls.searchedValuesPosition?.length
-              }
-            >
-              <Icon as={RiArrowUpLine} />
-              <Text fontSize="xs">{searchControls?.nextPosition || 0}</Text>
-            </Button>
-            <Badge colorScheme="gray" ml={2}>
-              Total de {searchControls.searchedValuesPosition?.length || 0}
-            </Badge>
-          </Flex>
-        </Flex>
+
+        <SearchMessages
+          messagesBoxRef={messageBoxRef}
+          messages={toShowConversation}
+          messagesContainerRef={messagesContainerRef}
+        />
       </Flex>
 
       <Modal
