@@ -8,7 +8,9 @@ import {
   create as createStorage,
 } from '../utils/localStorageData';
 
-const ConversationContext = createContext({} as ConversationData);
+const ConversationContext = createContext({
+  mainContact: '',
+} as ConversationData);
 
 interface IConversation {
   writtersName?: string[];
@@ -16,6 +18,7 @@ interface IConversation {
     writterName: string;
     messageDate: string;
     data: string;
+    id: string;
   }>;
   messagesDate?: string[];
 }
@@ -23,6 +26,8 @@ interface IConversation {
 interface ConversationData {
   convertConversation: (fileContent: string) => boolean;
   conversation: IConversation;
+  mainContact: string;
+  handleSelectMainContact: (mainContact: string) => void;
 }
 
 interface ConversationProviderProps {
@@ -32,6 +37,7 @@ interface ConversationProviderProps {
 export const ConversationProvider: React.FC<ConversationProviderProps> = ({
   children,
 }) => {
+  const [mainContact, setMainContact] = useState('');
   const [conversation, setConversation] = useState<IConversation>(() => {
     const conversationStorage = getStorage('convertedConversation');
 
@@ -58,6 +64,8 @@ export const ConversationProvider: React.FC<ConversationProviderProps> = ({
       value={{
         convertConversation,
         conversation,
+        mainContact,
+        handleSelectMainContact: setMainContact,
       }}
     >
       {children}
