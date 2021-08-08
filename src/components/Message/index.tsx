@@ -58,7 +58,13 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(
         const matchedValueAndTextFormatted = splitedMessage.map(
           (text, index) => {
             return index % 2 ? (
-              <Text as="span" bg="yellow" color="black" fontWeight="bold">
+              <Text
+                key={index}
+                as="span"
+                bg="yellow"
+                color="black"
+                fontWeight="bold"
+              >
                 {text}
               </Text>
             ) : (
