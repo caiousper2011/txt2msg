@@ -8,18 +8,20 @@ import { useConversation } from './ConversationContext';
 const ConversationFiltersContext = createContext({} as ConversationFilter);
 
 interface IFilters {
-  dates?: string[];
+  dateFilters?: string[];
+}
+
+interface Message {
+  writterName: string;
+  messageDate: string;
+  data: string;
+  id: string;
 }
 
 interface ConversationFilter {
   addFilter: (filter: IFilters) => void;
   conversationFilters: IFilters;
-  filteredMessages: Array<{
-    writterName: string;
-    messageDate: string;
-    data: string;
-    id: string;
-  }>;
+  filteredMessages: Message[];
   highLightContact: string;
   handleHighlightContact: Dispatch<SetStateAction<string>>;
 }
@@ -37,12 +39,33 @@ export const ConversationFiltersProvider: React.FC<ConversationProviderProps> =
       {},
     );
     const [highLightContact, setHighLightContact] = useState('');
+    const [filteredMessages, setFilteredMessages] = useState(messages);
 
-    const filteredMessages = messages;
+    const dateFilters = (formattedMessages: Message[], dates: string) =>
+      formattedMessages.filter((message) => {
+        const [fullDayDate] = message.messageDate.split(' ');
+        return dates.includes(fullDayDate);
+      });
+
+    const filterAvailable = {
+      dateFilters,
+    };
 
     const addFilter = (newFilter: IFilters) => {
-      setConversationFilters({ ...conversationFilters, ...newFilter });
-      console.log({ ...conversationFilters, ...newFilter });
+      const filters = { ...conversationFilters, ...newFilter };
+      setConversationFilters(filters);
+      const processedMessages = Object.entries(filters).reduce(
+        (formattedMessages, [filterName, filterValue]) => {
+          const result = filterAvailable[filterName](
+            formattedMessages,
+            filterValue,
+          );
+          return result;
+        },
+        messages,
+      );
+
+      setFilteredMessages(processedMessages);
     };
 
     return (

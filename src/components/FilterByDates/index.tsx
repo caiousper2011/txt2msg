@@ -1,12 +1,5 @@
-import {
-  Box,
-  Checkbox,
-  CheckboxGroup,
-  List,
-  ListIcon,
-  ListItem,
-} from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Box, Checkbox, List, ListIcon, ListItem } from '@chakra-ui/react';
+import { useState } from 'react';
 import { RiCalendarLine } from 'react-icons/ri';
 import { useConversationFilters } from '../../contexts/ConversationFilters';
 import { useConversation } from '../../contexts/ConversationContext';
@@ -15,8 +8,17 @@ export const FilterByDates: React.FC = () => {
   const {
     conversation: { messagesDate },
   } = useConversation();
-  const [datesFilter, setDatesFilter] = useState({});
-  const { addFilter } = useConversationFilters();
+  const { addFilter, conversationFilters } = useConversationFilters();
+  const [datesFilter, setDatesFilter] = useState(() => {
+    if (conversationFilters.dateFilters) {
+      return conversationFilters.dateFilters.reduce((dateFilters, filter) => {
+        dateFilters[filter] = Boolean(true);
+        return dateFilters;
+      }, {});
+    }
+
+    return {};
+  });
   const handleFilterByDate = (messageDate: string) => {
     const newFilterByDate = {
       ...datesFilter,
@@ -29,28 +31,26 @@ export const FilterByDates: React.FC = () => {
       .filter(([_, value]) => value)
       .map(([key]) => key);
 
-    addFilter({ dates });
+    addFilter({ dateFilters: dates });
   };
 
   return (
-    <CheckboxGroup colorScheme="pink">
-      <List spacing={3} mt={4} overflow="auto" h="100%">
-        {messagesDate.map((messageDate) => (
-          <Box key={messageDate}>
-            <ListItem as="button">
-              <ListIcon as={RiCalendarLine} />
-              <Checkbox
-                value={messageDate}
-                checked={Boolean(datesFilter[messageDate])}
-                onChange={() => handleFilterByDate(messageDate)}
-              >
-                {messageDate}
-              </Checkbox>
-            </ListItem>
-          </Box>
-        ))}
-      </List>
-      {JSON.stringify(datesFilter)}
-    </CheckboxGroup>
+    <List spacing={3} mt={4} overflow="auto" h="100%">
+      {messagesDate.map((messageDate) => (
+        <Box key={messageDate}>
+          <ListItem as="button">
+            <ListIcon as={RiCalendarLine} />
+            <Checkbox
+              colorScheme="pink"
+              value={messageDate}
+              onChange={() => handleFilterByDate(messageDate)}
+              isChecked={datesFilter[messageDate]}
+            >
+              {messageDate}
+            </Checkbox>
+          </ListItem>
+        </Box>
+      ))}
+    </List>
   );
 };

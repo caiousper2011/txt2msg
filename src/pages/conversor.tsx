@@ -30,7 +30,6 @@ const Conversor: React.FC = () => {
   );
   const messagesContainerRef = useRef<HTMLDivElement>();
   const [search, setSearch] = useState('');
-  console.log(filteredMessages);
 
   useEffect(() => {
     setMessageBoxRef(
@@ -38,9 +37,11 @@ const Conversor: React.FC = () => {
         .fill(undefined)
         .map(() => createRef()),
     );
+  }, [filteredMessages]);
 
+  useEffect(() => {
     openSelectMainContactDialog();
-  }, [openSelectMainContactDialog, filteredMessages]);
+  }, [openSelectMainContactDialog]);
 
   return (
     <>

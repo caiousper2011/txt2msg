@@ -18,6 +18,7 @@ interface IConversation {
     writterName: string;
     messageDate: string;
     data: string;
+    id: string;
   }>;
   messagesDate?: string[];
 }
