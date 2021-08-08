@@ -1,12 +1,11 @@
+import { v4 as uuidv4 } from 'uuid';
 interface ISeparateContentAndDate {
   messageDate: string;
   data: string;
+  id: string;
 }
-
-interface IExtractWritterName {
+interface IExtractWritterName extends ISeparateContentAndDate {
   writterName: string;
-  messageDate: string;
-  data: string;
 }
 
 interface IConversation {
@@ -19,12 +18,16 @@ export const APPLICATION_WRITTER_NAME = 'whatsapp';
 
 export const conversor = () => {
   const breakLinesDriveByMessageDate = (fileContent: string) => {
-    const breakByDate = new RegExp(/(\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}.*)/);
+    const breakByDate = new RegExp(
+      /(\d{2}\/\d{2}\/(\d{4}|\d{2})\s\d{2}:\d{2}.*)/,
+    );
     return fileContent.split(breakByDate);
   };
 
   const removeAnyNonRealContentOrDirty = (fileContent: string[]) => {
-    const removeNonContentReg = new RegExp(/\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}/);
+    const removeNonContentReg = new RegExp(
+      /\d{2}\/\d{2}\/(\d{4}|\d{2})\s\d{2}:\d{2}/,
+    );
     return fileContent.filter((content) => removeNonContentReg.test(content));
   };
 
@@ -37,7 +40,8 @@ export const conversor = () => {
       const [messageDate, _, messageContent] = content.split(
         breakContentBySeparator,
       );
-      return { messageDate, data: messageContent };
+      const id = uuidv4();
+      return { messageDate, data: messageContent, id };
     });
   };
 
