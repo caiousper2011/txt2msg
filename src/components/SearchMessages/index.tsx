@@ -1,8 +1,7 @@
 import { Badge, Button, Flex, Icon, Input, Text } from '@chakra-ui/react';
-import { useRef } from 'react';
-import { useCallback } from 'react';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import { MutableRefObject } from 'react';
-import { ChangeEvent, useState, Ref } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { RiArrowDownLine, RiArrowUpLine, RiSearchLine } from 'react-icons/ri';
 
 interface SearchControls {
@@ -22,21 +21,23 @@ export interface SearchMessagesProps {
     data: string;
   }>;
   messagesContainerRef: MutableRefObject<HTMLDivElement>;
+  handleSearchValue: Dispatch<SetStateAction<string>>;
+  search: string;
 }
 
 export const SearchMessages: React.FC<SearchMessagesProps> = ({
   messagesBoxRef,
   messages,
   messagesContainerRef,
+  handleSearchValue,
+  search,
 }) => {
   const [searchControls, setSearchControls] = useState<SearchControls>({});
-  const [search, setSearch] = useState('');
 
   const scrollUntilPosition = useCallback(
     (top) => {
       if (top) {
         messagesContainerRef.current.scrollTo({ top });
-        console.log('chamou', top);
       }
     },
     [messagesContainerRef],
@@ -74,8 +75,6 @@ export const SearchMessages: React.FC<SearchMessagesProps> = ({
         (position) => position === oldValue.currentPosition,
       );
 
-      console.log(oldValue);
-
       const typeChangeValue = type === 'add' ? 1 : -1;
 
       const currentPosition =
@@ -97,36 +96,43 @@ export const SearchMessages: React.FC<SearchMessagesProps> = ({
     [getNextPosition, getPreviousPosition],
   );
 
+  const getSearchValuesIndex = useCallback(
+    (searchedValue: string) => [
+      ...messages
+        .map(
+          (data, index) =>
+            data.data.toLowerCase().includes(searchedValue.toLowerCase()) &&
+            index,
+        )
+        .filter(Boolean)
+        .reverse(),
+    ],
+    [messages],
+  );
+
+  const getSearchValuesPosition = useCallback(
+    (searchedValuesIndex: number[]) =>
+      messagesBoxRef
+        .filter((_, index) => searchedValuesIndex.includes(index))
+        .filter(Boolean)
+        .map((boxRef) => boxRef.current?.offsetTop),
+    [messagesBoxRef],
+  );
+
   const handleFilterMessagesBySearch = useCallback(
     (inputEvent: ChangeEvent<HTMLInputElement>) => {
       inputEvent.preventDefault();
       const searchedValue = inputEvent.target.value;
-      console.log(messagesBoxRef);
+      handleSearchValue(searchedValue);
 
       if (!searchedValue) {
         setSearchControls({});
         return;
       }
 
-      setSearch(searchedValue);
-
-      const searchedValuesIndex = [
-        ...messages
-          .map(
-            (data, index) =>
-              data.data.toLowerCase().includes(searchedValue.toLowerCase()) &&
-              index,
-          )
-          .filter(Boolean)
-          .reverse(),
-      ];
-
-      console.log(messagesBoxRef[0].current);
-
-      const searchedValuesPosition = messagesBoxRef
-        .filter((_, index) => searchedValuesIndex.includes(index))
-        .filter(Boolean)
-        .map((boxRef) => boxRef.current?.offsetTop);
+      const searchedValuesIndex = getSearchValuesIndex(searchedValue);
+      const searchedValuesPosition =
+        getSearchValuesPosition(searchedValuesIndex);
 
       const newSearchControls = {
         searchedValuesIndex,
@@ -136,10 +142,14 @@ export const SearchMessages: React.FC<SearchMessagesProps> = ({
       };
 
       setSearchControls(newSearchControls);
-
       getPositions(newSearchControls);
     },
-    [messagesBoxRef, messages, getPositions],
+    [
+      getPositions,
+      getSearchValuesIndex,
+      getSearchValuesPosition,
+      handleSearchValue,
+    ],
   );
 
   return (

@@ -9,14 +9,12 @@ import {
 import { Dispatch, SetStateAction, useState } from 'react';
 import { RiCalendarLine } from 'react-icons/ri';
 import { useConversationFilters } from '../../contexts/ConversationFilters';
+import { useConversation } from '../../contexts/ConversationContext';
 
-export interface FilterByDatesProps {
-  messagesDate: string[];
-}
-
-export const FilterByDates: React.FC<FilterByDatesProps> = ({
-  messagesDate,
-}) => {
+export const FilterByDates: React.FC = () => {
+  const {
+    conversation: { messagesDate },
+  } = useConversation();
   const [datesFilter, setDatesFilter] = useState({});
   const { addFilter } = useConversationFilters();
   const handleFilterByDate = (messageDate: string) => {

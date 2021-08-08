@@ -1,12 +1,11 @@
+import { v4 as uuidv4 } from 'uuid';
 interface ISeparateContentAndDate {
   messageDate: string;
   data: string;
+  id: string;
 }
-
-interface IExtractWritterName {
+interface IExtractWritterName extends ISeparateContentAndDate {
   writterName: string;
-  messageDate: string;
-  data: string;
 }
 
 interface IConversation {
@@ -41,7 +40,8 @@ export const conversor = () => {
       const [messageDate, _, messageContent] = content.split(
         breakContentBySeparator,
       );
-      return { messageDate, data: messageContent };
+      const id = uuidv4();
+      return { messageDate, data: messageContent, id };
     });
   };
 

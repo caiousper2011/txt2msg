@@ -1,20 +1,15 @@
 import { HStack, ListIcon, ListItem, Text, List } from '@chakra-ui/react';
-import { Dispatch, SetStateAction } from 'react';
 import { RiStarSFill, RiUserLine } from 'react-icons/ri';
+import { useConversation } from '../../contexts/ConversationContext';
+import { useConversationFilters } from '../../contexts/ConversationFilters';
 
-export interface FilterByContactsProps {
-  mainContact: string;
-  writtersName: string[];
-  highLightContact: string;
-  handleHighLightContact: Dispatch<SetStateAction<string>>;
-}
+export const FilterByContacts: React.FC = () => {
+  const {
+    conversation: { writtersName },
+    mainContact,
+  } = useConversation();
+  const { highLightContact, handleHighlightContact } = useConversationFilters();
 
-const FilterByContacts: React.FC<FilterByContactsProps> = ({
-  handleHighLightContact,
-  writtersName,
-  mainContact,
-  highLightContact,
-}) => {
   return (
     <List spacing={3} mt={4} overflow="auto" h="100%">
       {writtersName.map((writterName) => (
@@ -22,7 +17,7 @@ const FilterByContacts: React.FC<FilterByContactsProps> = ({
           <HStack
             color={mainContact === writterName ? 'gray.100' : 'gray.300'}
             onClick={() =>
-              handleHighLightContact((oldWritter: string) => {
+              handleHighlightContact((oldWritter: string) => {
                 return oldWritter === writterName ? '' : writterName;
               })
             }
@@ -39,5 +34,3 @@ const FilterByContacts: React.FC<FilterByContactsProps> = ({
     </List>
   );
 };
-
-export default FilterByContacts;

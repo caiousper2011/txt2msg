@@ -1,7 +1,9 @@
-import { useContext } from 'react';
+import { SetStateAction, useContext } from 'react';
 import { useState } from 'react';
+import { Dispatch } from 'react';
 import { ReactNode } from 'react';
 import { createContext } from 'react';
+import { useConversation } from './ConversationContext';
 
 const ConversationFiltersContext = createContext({} as ConversationFilter);
 
@@ -12,6 +14,14 @@ interface IFilters {
 interface ConversationFilter {
   addFilter: (filter: IFilters) => void;
   conversationFilters: IFilters;
+  filteredMessages: Array<{
+    writterName: string;
+    messageDate: string;
+    data: string;
+    id: string;
+  }>;
+  highLightContact: string;
+  handleHighlightContact: Dispatch<SetStateAction<string>>;
 }
 
 interface ConversationProviderProps {
@@ -20,9 +30,15 @@ interface ConversationProviderProps {
 
 export const ConversationFiltersProvider: React.FC<ConversationProviderProps> =
   ({ children }) => {
+    const {
+      conversation: { data: messages },
+    } = useConversation();
     const [conversationFilters, setConversationFilters] = useState<IFilters>(
       {},
     );
+    const [highLightContact, setHighLightContact] = useState('');
+
+    const filteredMessages = messages;
 
     const addFilter = (newFilter: IFilters) => {
       setConversationFilters({ ...conversationFilters, ...newFilter });
@@ -34,6 +50,9 @@ export const ConversationFiltersProvider: React.FC<ConversationProviderProps> =
         value={{
           addFilter,
           conversationFilters,
+          filteredMessages,
+          highLightContact,
+          handleHighlightContact: setHighLightContact,
         }}
       >
         {children}

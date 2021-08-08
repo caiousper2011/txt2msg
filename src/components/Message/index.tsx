@@ -1,5 +1,7 @@
 import { Box, HStack, Text, BoxProps } from '@chakra-ui/react';
+import { useEffect, useState, Fragment } from 'react';
 import { forwardRef } from 'react';
+import { useConversation } from '../../contexts/ConversationContext';
 
 interface MessageProps extends BoxProps {
   message: {
@@ -7,11 +9,16 @@ interface MessageProps extends BoxProps {
     data: string;
     messageDate: string;
   };
-  mainWritter: string;
+  highLightWhenContains: string;
 }
 
 export const Message = forwardRef<HTMLDivElement, MessageProps>(
-  ({ message, mainWritter, ...rest }, ref) => {
+  ({ message, highLightWhenContains, ...rest }, ref) => {
+    const { mainContact } = useConversation();
+    const [formattedMessage, setFormattedMessage] = useState<
+      (string | JSX.Element)[]
+    >([message.data]);
+
     const defaultMessageSettings: BoxProps = {
       bg: 'gray.900',
       maxW: '80%',
@@ -31,9 +38,38 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(
     };
 
     const messageSettings: BoxProps =
-      mainWritter === message.writterName
+      mainContact === message.writterName
         ? mainWritterMessageSettings
         : defaultMessageSettings;
+
+    useEffect(() => {
+      const breakByMatchedTextReg = new RegExp(
+        `(${highLightWhenContains})`,
+        'i',
+      );
+
+      const splitedMessage = message.data.split(breakByMatchedTextReg);
+
+      setFormattedMessage(() => {
+        if (!highLightWhenContains || splitedMessage.length === 1) {
+          return splitedMessage;
+        }
+
+        const matchedValueAndTextFormatted = splitedMessage.map(
+          (text, index) => {
+            return index % 2 ? (
+              <Text as="span" bg="yellow" color="black" fontWeight="bold">
+                {text}
+              </Text>
+            ) : (
+              text
+            );
+          },
+        );
+
+        return matchedValueAndTextFormatted;
+      });
+    }, [message, highLightWhenContains]);
 
     return (
       <Box
@@ -45,7 +81,9 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(
         {...rest}
       >
         <Text fontSize={18} color={messageSettings.color}>
-          {message.data}
+          {formattedMessage.map((content, index) => (
+            <Fragment key={index}>{content}</Fragment>
+          ))}
         </Text>
         <HStack
           justify="space-between"
