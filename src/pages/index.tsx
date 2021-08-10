@@ -1,9 +1,11 @@
-import { Box, calc, Flex, Text } from '@chakra-ui/react';
+import { Box, calc, Flex, Stack, Text } from '@chakra-ui/react';
 import { GetStaticProps } from 'next';
+import { ImportConversation } from '../components/ImportConversation';
 
 export default function Home() {
   return (
     <Flex
+      bg="pink.100"
       alignItems={{ base: 'flex-start', lg: 'center' }}
       h={calc.subtract('100vh', '64px')}
       gap={16}
@@ -18,8 +20,9 @@ export default function Home() {
       }}
       overflowY="auto"
       pt={{ base: 16, lg: 0 }}
+      color="gray.900"
     >
-      <Box mb={{ base: 16, lg: 0 }} pr={{ lg: 16, xl: 80 }}>
+      <Box mb={{ sm: 16, lg: 0 }} pr={{ lg: 16, xl: 80 }}>
         <Text fontSize="5xl" fontWeight="bold" textTransform="uppercase">
           Conversor de{' '}
           <Text as="span" color="pink.500">
@@ -38,15 +41,18 @@ export default function Home() {
           <Text as="span" color="pink.500">
             ZAP conversor
           </Text>
-          , aqui você poderá converter sua conversa exportada em .TXT pelo
-          Whatsapp em uma conversa legível novamente.
+          , aqui você poderá converter suas conversas exportadas em .TXT pelo
+          Whatsapp em conversas legíveis novamente. Basta importar a conversa!
         </Text>
+        <Stack my={4}>
+          <ImportConversation />
+        </Stack>
       </Box>
       <Box
         as="figure"
         w="100%"
         maxW={{ base: '100%', lg: '480px' }}
-        bgImg="/talk_image.svg"
+        bgImg="/conversation.svg"
         minH={{ base: 'xs', lg: '480px' }}
         bgRepeat="no-repeat"
         bgSize={{

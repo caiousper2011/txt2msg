@@ -9,7 +9,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ProvidersContainer>
       <Head>
         <title>
-          ZAP conversor | conversor de arquivo .txt em conversas de novo
+          ZAP conversor | conversor de arquivo .txt em conversas novamente
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
