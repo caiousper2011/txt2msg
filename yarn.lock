@@ -255,6 +255,16 @@
     compute-scroll-into-view "1.0.14"
     copy-to-clipboard "3.3.1"
 
+"@chakra-ui/hooks@1.5.5":
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/hooks/-/hooks-1.5.5.tgz#7b455f1445d4b48111d3a4811ed6e1bd618c2c74"
+  integrity sha512-jwD+sRd+gOJvAeCM630n496CS5SAZFUHqOC7wwYN2Kj6BjCW7yHtxsq4atIlKSYJ+Ra96WNmZQ58Pr5Qj3r9Jg==
+  dependencies:
+    "@chakra-ui/react-utils" "1.1.2"
+    "@chakra-ui/utils" "1.8.2"
+    compute-scroll-into-view "1.0.14"
+    copy-to-clipboard "3.3.1"
+
 "@chakra-ui/icon@1.1.10":
   version "1.1.10"
   resolved "https://registry.yarnpkg.com/@chakra-ui/icon/-/icon-1.1.10.tgz#fe7bb96f3b8162d90e85e347b3e2f8203733f44a"
@@ -269,6 +279,14 @@
   dependencies:
     "@chakra-ui/hooks" "1.5.4"
     "@chakra-ui/utils" "1.8.1"
+
+"@chakra-ui/image@^1.0.18":
+  version "1.0.18"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/image/-/image-1.0.18.tgz#9b3b8ee5a9fac5f05699b4fc1705b30aea2073f3"
+  integrity sha512-hi123wYe+H0V3Yr3ujrbGdD/jPgrHpK/DB39R7IVVRPQz3kMRfffTfTXA57ah9iTwAG8jNyMckVyjeWClH3JPQ==
+  dependencies:
+    "@chakra-ui/hooks" "1.5.5"
+    "@chakra-ui/utils" "1.8.2"
 
 "@chakra-ui/input@1.2.8":
   version "1.2.8"
@@ -624,6 +642,16 @@
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@chakra-ui/utils/-/utils-1.8.1.tgz#9778e4e8776da0ed4dc0051755d79002d2f21ec2"
   integrity sha512-v0xL9U2ozDbHCl2kQTdJNOjUGT7ZjyFwEYuMW02ZaLkmLPj2w3G592iOsJ9Z9sBemQgoOrZGyTWqdxm6rhxJug==
+  dependencies:
+    "@types/lodash.mergewith" "4.6.6"
+    css-box-model "1.2.1"
+    framesync "5.3.0"
+    lodash.mergewith "4.6.2"
+
+"@chakra-ui/utils@1.8.2":
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/utils/-/utils-1.8.2.tgz#5a9f1f67c5f2232769fe7d009fcf96eebf3c2b4e"
+  integrity sha512-MnE4czCQCE87Ch1DfAdmZvObgRviw9wQ9Zti372P8VD1ILEdff/C5WBWHW6mgG3YcorPAxgnrNF3MmNE95jRkA==
   dependencies:
     "@types/lodash.mergewith" "4.6.6"
     css-box-model "1.2.1"
