@@ -46,7 +46,7 @@ const Conversor: React.FC = () => {
   return (
     <>
       <Flex
-        w={calc.subtract('100vw', `${theme.space}`)}
+        w={calc.subtract('100vw', `${theme.space[12]}`)}
         h={calc.subtract('100vh', '110px')}
         bg="gray.800"
         mx={6}

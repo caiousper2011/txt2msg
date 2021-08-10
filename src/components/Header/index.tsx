@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = () => {
       boxShadow="xl"
       justifyContent="space-between"
     >
-      <HStack display="flex" alignItems="flex-end">
+      <HStack display="flex" alignItems="flex-end" cursor="pointer">
         <Link href="/" passHref>
           <Text fontSize="2xl" fontWeight="light">
             ZAP conversor
@@ -62,7 +62,11 @@ export const Header: React.FC<HeaderProps> = () => {
       >
         <HStack>
           <Icon as={RiUploadLine} fontSize={16} />
-          <Text textTransform="uppercase" fontSize="small">
+          <Text
+            display={{ base: 'none', md: 'block' }}
+            textTransform="uppercase"
+            fontSize="small"
+          >
             Importar nova conversa
           </Text>
         </HStack>

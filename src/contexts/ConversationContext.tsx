@@ -6,6 +6,7 @@ import { conversor } from '../utils/index';
 import {
   get as getStorage,
   create as createStorage,
+  clear as clearStorage,
 } from '../utils/localStorageData';
 
 const ConversationContext = createContext({
@@ -53,6 +54,7 @@ export const ConversationProvider: React.FC<ConversationProviderProps> = ({
   const convertConversation = (fileContent: string) => {
     const convertedConversation = conversorData.run(fileContent);
     setConversation(convertedConversation);
+    clearStorage('convertedConversation');
     createStorage({ convertedConversation });
     console.log(convertedConversation);
 

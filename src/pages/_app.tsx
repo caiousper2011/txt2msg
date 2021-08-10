@@ -11,6 +11,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>
           ZAP conversor | conversor de arquivo .txt em conversas de novo
         </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Flex>
         <Flex flexDirection="column">

@@ -1,4 +1,4 @@
-import { Box, HStack, Text, BoxProps } from '@chakra-ui/react';
+import { Box, Text, BoxProps, Stack } from '@chakra-ui/react';
 import { useEffect, useState, Fragment } from 'react';
 import { forwardRef } from 'react';
 import { useConversation } from '../../contexts/ConversationContext';
@@ -91,18 +91,18 @@ export const Message = forwardRef<HTMLDivElement, MessageProps>(
             <Fragment key={index}>{content}</Fragment>
           ))}
         </Text>
-        <HStack
-          justify="space-between"
-          alignItems="flex-end"
+        <Box
+          display="flex"
+          justifyContent="space-between"
           color={messageSettings.color}
+          flexDirection={{ base: 'column', sm: 'row' }}
+          mt={4}
+          fontSize="xs"
+          aligItems="flex-end"
         >
-          <Text fontSize="xs" mt={4}>
-            {message.messageDate}
-          </Text>
-          <Text fontSize="xs" mt={4}>
-            {message.writterName}
-          </Text>
-        </HStack>
+          <Text>{message.messageDate}</Text>
+          <Text>{message.writterName}</Text>
+        </Box>
       </Box>
     );
   },
